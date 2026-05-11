@@ -14,6 +14,7 @@ model Organization {
 
   users     User[]
   contacts  Contact[]
+  imports   Import[]
 }
 
 model User {
@@ -23,6 +24,8 @@ model User {
   organizationId String
   organization   Organization @relation(fields: [organizationId], references: [id])
   createdAt      DateTime     @default(now())
+
+  imports        Import[]
 
   @@index([organizationId])
 }
@@ -40,4 +43,45 @@ model Contact {
 
   @@unique([email, organizationId])
   @@index([organizationId])
+}
+
+enum ImportStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+model Import {
+  id             String        @id @default(cuid())
+  organizationId String
+  organization   Organization  @relation(fields: [organizationId], references: [id])
+  userId         String
+  user           User          @relation(fields: [userId], references: [id])
+  filename       String
+  filePath       String
+  status         ImportStatus  @default(PENDING)
+  totalRows      Int           @default(0)
+  processedRows  Int           @default(0)
+  successfulRows Int           @default(0)
+  failedRows     Int           @default(0)
+  createdAt      DateTime      @default(now())
+  completedAt    DateTime?
+
+  errors         ImportError[]
+
+  @@index([organizationId])
+}
+
+model ImportError {
+  id           String   @id @default(cuid())
+  importId     String
+  import       Import   @relation(fields: [importId], references: [id], onDelete: Cascade)
+  rowNumber    Int
+  rowData      Json
+  errorMessage String
+  retried      Boolean  @default(false)
+  createdAt    DateTime @default(now())
+
+  @@index([importId])
 }
