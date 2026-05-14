@@ -10,13 +10,21 @@ A small CRM-style codebase with a few existing patterns (Contacts CRUD, an email
 
 Review the open PR as you would in real life. Use the GitHub PR UI, or clone locally — your choice.
 
-## Running locally (optional)
+## Running locally
 
-You don't need to run the code to review it. Type info works after `pnpm install`. If you _want_ to run it, you'll need Postgres + Redis; see `.env.example`. We don't promise it boots cleanly on every machine — this is a review exercise, not a setup exercise.
+You don't need to run the code to review it — but if you want to click through the UI, this should just work:
 
 ```bash
 pnpm install
-pnpm typecheck
+cp .env.example .env
+pnpm dev:setup    # creates SQLite dev.db and seeds a dev org/user
+pnpm dev          # http://localhost:3000
+```
+
+You'll be auto-authenticated as a dev user (no login screen). Postgres is used in prod but the local snapshot runs on SQLite for convenience. Queues no-op without `REDIS_URL` — jobs land in the DB but the worker doesn't process them. That's enough to explore the UI; if you want real processing, set `REDIS_URL` and run `pnpm worker` in a second terminal.
+
+```bash
+pnpm typecheck    # type info works after install regardless of dev:setup
 ```
 
 ## Existing patterns to be aware of
