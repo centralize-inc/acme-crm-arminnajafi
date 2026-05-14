@@ -22,6 +22,17 @@ export const emailQueue = new Queue<{ to: string; template: string; organization
 
 export const emailQueueEvents = new QueueEvents('email', { connection: redisConnection });
 
+export type ImportJob = {
+  importId: string;
+  organizationId: string;
+  filePath: string;
+};
+
+export const importQueue = new Queue<ImportJob>('imports', {
+  connection: redisConnection,
+});
+
 export const QUEUE_CONCURRENCY = {
   email: 10,
+  imports: 1,
 } as const;
