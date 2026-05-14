@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -45,13 +45,8 @@ model Contact {
   @@index([organizationId])
 }
 
-enum ImportStatus {
-  PENDING
-  PROCESSING
-  COMPLETED
-  FAILED
-}
-
+// Status values: 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED'
+// (Stored as String for SQLite-dev compatibility — semantically an enum.)
 model Import {
   id             String        @id @default(cuid())
   organizationId String
@@ -60,7 +55,7 @@ model Import {
   user           User          @relation(fields: [userId], references: [id])
   filename       String
   filePath       String
-  status         ImportStatus  @default(PENDING)
+  status         String        @default("PENDING")
   totalRows      Int           @default(0)
   processedRows  Int           @default(0)
   successfulRows Int           @default(0)
@@ -78,7 +73,7 @@ model ImportError {
   importId     String
   import       Import   @relation(fields: [importId], references: [id], onDelete: Cascade)
   rowNumber    Int
-  rowData      Json
+  rowData      String   // JSON-stringified row
   errorMessage String
   retried      Boolean  @default(false)
   createdAt    DateTime @default(now())

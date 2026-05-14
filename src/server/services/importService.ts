@@ -65,7 +65,7 @@ export class ImportService {
         rowErrors.push({
           importId,
           rowNumber: i + 2,
-          rowData: row,
+          rowData: JSON.stringify(row),
           errorMessage: result.error,
         });
       }
@@ -73,7 +73,6 @@ export class ImportService {
 
     await this.db.contact.createMany({
       data: validContacts,
-      skipDuplicates: true,
     });
 
     if (rowErrors.length > 0) {
